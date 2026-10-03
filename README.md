@@ -1,21 +1,50 @@
-# A Machine Learning-Based Dynamic Analysis for Detecting Malicious Packages in PyPI Ecosystem (NT521)
+# A Machine Learning-Based Dynamic Analysis for Detecting Malicious Packages in PyPI Ecosystem
 
-Hệ thống phân tích động (Dynamic Analysis) dựa trên nhân Linux (eBPF & Strace) kết hợp Machine Learning để phát hiện gói mã độc trên hệ sinh thái PyPI.
-
----
-
-## Quy trình kiểm thử thực tế (End-to-End Pipeline)
----
-
-### Yêu cầu môi trường
-- Hệ điều hành: **Ubuntu 22.04 / 24.04 (x86_64)** chạy trên VMware hoặc VirtualBox.
-- Quyền quản trị viên (`sudo`).
+A Linux kernel-level dynamic behavioral analysis system utilizing eBPF and `strace` combined with Machine Learning classifiers to detect supply chain attacks and malicious packages in the PyPI ecosystem, replicating and extending the DySec framework (QUT-DV25).
 
 ---
 
-### Bước 0: Cài đặt công cụ ban đầu (Chỉ chạy 1 lần duy nhất)
+## Directory Structure
 
-Mở terminal trong thư mục dự án trên máy ảo Linux:
+```
+.
+├── dataset/
+│   ├── QUT-DV25.csv
+│   ├── README.md
+│   ├── test.csv
+│   ├── train.csv
+│   └── val.csv
+├── models/
+│   ├── Decision-Tree.pkl
+│   ├── Gradient-Boosting.pkl
+│   ├── KNN.pkl
+│   ├── Logistic-Regression.pkl
+│   ├── Random-Forest.pkl
+│   └── SVM.pkl
+├── reports/
+│   ├── confusion.png
+│   ├── evaluation.csv
+│   └── roc.png
+├── src/
+│   ├── scripts/
+│   │   ├── monitor.sh
+│   │   ├── prerequisites.sh
+│   │   └── trace.sh
+│   ├── evaluate.py
+│   ├── extract.py
+│   ├── main.py
+│   ├── predict.py
+│   ├── preprocess.py
+│   └── train.py
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Installation & Setup
+
+Open a terminal in the root directory of the repository and execute:
 
 ```bash
 sudo bash src/scripts/prerequisites.sh
@@ -24,53 +53,96 @@ chmod +x src/scripts/trace.sh src/scripts/monitor.sh
 
 ---
 
-### Bước 1: Thu thập trace động khi cài đặt gói
+## Usage Guide
 
-Chạy `trace.sh` với tên gói cần kiểm tra (ví dụ: `requests`, thời gian giám sát 30 giây):
+### 1. Automated End-to-End Pipeline
+
+Run the full pipeline (live dynamic tracing $\rightarrow$ 36-feature extraction to CSV $\rightarrow$ multi-model AI consensus prediction) using a single command:
+
+```bash
+sudo python3 src/main.py <package_name> [duration]
+```
+
+*Example:*
+```bash
+sudo python3 src/main.py requests 30
+```
+
+*If traces already exist and you want to extract and predict without re-installing:*
+```bash
+python3 src/main.py requests --skip
+```
+
+---
+
+### 2. Manual Step-by-Step Execution
+
+#### Step 1: Capture Dynamic Telemetry
+Attach eBPF probes (`opensnoop`, `tcpstates`, `filetop`) and `strace` during isolated package installation:
 
 ```bash
 sudo bash src/scripts/trace.sh requests 30
 ```
 
-- Hệ thống tự động tạo môi trường ảo độc lập (`env/requests/`), bật đồng thời các probe eBPF (`opensnoop`, `tcpstates`, `filetop`) và `strace` để giám sát toàn bộ lời gọi hệ thống khi `pip install` thực thi.
-- Dữ liệu thô được lưu vào:
-  - `traces/requests/`: Chứa các log eBPF và nhật ký cài đặt.
-  - `outputs/requests/`: Chứa log các system call chi tiết.
+#### Step 2: Extract 36 Selected Engineered Features (SEF)
+Parse raw kernel logs into an empirical 36-feature CSV evidence file:
+
+```bash
+python3 src/extract.py --pkg requests --out requests.csv
+```
+
+#### Step 3: Run Multi-Model AI Prediction
+Feed the extracted CSV evidence into the trained classifiers:
+
+```bash
+python3 src/predict.py requests.csv
+```
 
 ---
 
-### Bước 2: Bóc tách 36 đặc trưng ra file CSV bằng chứng
+## Training & Evaluation
 
-Sử dụng `extract.py` để phân tích các log thô vừa thu được và xuất ra file CSV bằng chứng thực nghiệm:
+### Train Models:
+Train all 6 classifiers on the partitioned training dataset (`dataset/train.csv`):
 
 ```bash
-python src/extract.py --pkg requests --out requests_evidence.csv
+python3 src/train.py
 ```
 
-- Tạo ra file `requests_evidence.csv` gồm đúng 36 đặc trưng động (SEF) thuộc 6 nhóm hành vi (Opensnoop, TCP, Filetop, Install, SysCall, Pattern).
-- File CSV này có thể mở bằng Excel để kiểm tra và lưu trữ làm bằng chứng số liệu.
+### Evaluate on Test Set:
+Benchmark the models on the independent test dataset (`dataset/test.csv`) and generate evaluation reports:
+
+```bash
+python3 src/evaluate.py
+```
 
 ---
 
-### Bước 3: Đưa file CSV bằng chứng vào 4 mô hình AI dự đoán
+## Experimental Benchmark
 
-Nạp file CSV bằng chứng vào `predict.py`:
+### Comprehensive Evaluation on Test Set (2,141 Samples)
 
-```bash
-python src/predict.py requests_evidence.csv
-```
+| # | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC | FPR | FNR |
+| :-: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 | **Gradient Boosting** | **98.23%** | **98.22%** | **98.22%** | **98.22%** | **0.9986** | **1.77%** | **1.78%** |
+| 2 | **Random Forest** | **96.36%** | **96.79%** | **95.88%** | **96.33%** | **0.9951** | **3.17%** | **4.12%** |
+| 3 | **Decision Tree** | **95.00%** | **95.64%** | **94.29%** | **94.96%** | **0.9784** | **4.29%** | **5.71%** |
+| 4 | **SVM (LinearSVC)** | **89.30%** | **90.86%** | **87.37%** | **89.08%** | **0.9557** | **8.77%** | **12.63%** |
+| 5 | **Logistic Regression** *(Extension)* | **86.74%** | **88.90%** | **83.91%** | **86.33%** | **0.9387** | **10.45%** | **16.09%** |
+| 6 | **KNN (k=5)** *(Extension)* | **81.27%** | **82.49%** | **79.33%** | **80.88%** | **0.8891** | **16.79%** | **20.67%** |
 
-Hệ thống sẽ tiền xử lý dữ liệu qua `preprocess.py` và đưa qua 4 mô hình Machine Learning (`Random Forest`, `Decision Tree`, `Gradient Boosting`, `SVM`) để đưa ra kết quả phán đoán:
+*Generated artifacts in `reports/`:*
+- Confusion Matrices: `reports/confusion.png`
+- ROC Curves: `reports/roc.png`
+- Metrics Summary: `reports/evaluation.csv`
 
-```text
-================================================================
-PACKAGE: requests
-================================================================
-Model                Prediction      Probability  
-----------------------------------------------------------------
-Random-Forest        BENIGN            2.14%                  
-Decision-Tree        BENIGN            0.00%                  
-Gradient-Boosting    BENIGN            0.85%                  
-SVM                  BENIGN            3.20%          
-================================================================
-```
+---
+
+### Comparison with DySec Published Results
+
+| Classifier | Published Accuracy (DySec) | Replicated Accuracy (Ours) | Delta ($\Delta$) | Status |
+| :--- | :---: | :---: | :---: | :--- |
+| **Random Forest** | ~95.99% | **96.36%** | **+0.37%** | Consistent match with paper findings |
+| **Gradient Boosting** | ~96.50% - 97.20% | **98.23%** | **+1.03%** | Superior generalization performance |
+| **Decision Tree** | ~93.80% - 94.50% | **95.00%** | **+0.50%** | Matches tree-based baseline |
+| **SVM** | ~88.00% - 90.00% | **89.30%** | **-0.20%** | Consistent with linear boundary baselines |
