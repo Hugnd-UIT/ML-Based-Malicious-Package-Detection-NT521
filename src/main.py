@@ -53,7 +53,7 @@ def main():
     args = ap.parse_args()
 
     clean = os.path.basename(args.pkg).replace(".tar.gz", "").replace(".zip", "")
-    out = args.out or f"{clean}_evidence.csv"
+    out = args.out or f"{clean}.csv"
     run(args.pkg, args.duration, out, args.skip)
 
 
