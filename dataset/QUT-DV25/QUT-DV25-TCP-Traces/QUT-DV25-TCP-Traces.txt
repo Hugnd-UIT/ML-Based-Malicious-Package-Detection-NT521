@@ -1,7 +1,0 @@
-TCP traces dataset: 
-
-Captured network interactions (remote IP/port access, connection states), identifying anomalous ports (e.g., port 6667) tied to malicious payload delivery. 
-Detection of unauthorized network communication. 
-Identification of anomalous IP and port usage. 
-Monitoring state transitions (frequency and connection error patterns). 
-Detection of remote access.
