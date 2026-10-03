@@ -218,14 +218,25 @@ def pattern(entries):
     return {f"Pattern_{i}": v for i, v in enumerate(top5(tri) + top5(adv), 1)}
 
 
+def qut_dir(root, name):
+    for sub in (name, name.replace("-", "_"), name.replace("_", "-")):
+        cand = os.path.join(root, f"QUT-DV25-{sub}")
+        if os.path.exists(cand):
+            return cand
+        cand = os.path.join(root, f"QUT-DV25_{sub}")
+        if os.path.exists(cand):
+            return cand
+    return os.path.join(root, f"QUT-DV25-{name}")
+
+
 def files(root, pkg, layout):
     if layout == "qut":
-        g = lambda sub, suffix: os.path.join(root, f"QUT-DV25_{sub}", f"{pkg}_{suffix}")
-        return {"opensnoop": g("Opensnoop_Traces", "opensnoop_trace.txt"),
-                "tcp": g("TCP_Traces", "tcptraces.txt"),
-                "filetop": g("Filetop_Traces", "filetop_trace.txt"),
-                "install": g("Installation_Traces", "install_log.txt"),
-                "strace": os.path.join(root, "QUT-DV25_Pattern_Traces", pkg)}
+        g = lambda sub, suffix: os.path.join(qut_dir(root, sub), f"{pkg}_{suffix}")
+        return {"opensnoop": g("Opensnoop-Traces", "opensnoop_trace.txt"),
+                "tcp": g("TCP-Traces", "tcptraces.txt"),
+                "filetop": g("Filetop-Traces", "filetop_trace.txt"),
+                "install": g("Installation-Traces", "install_log.txt"),
+                "strace": os.path.join(qut_dir(root, "Pattern-Traces"), pkg)}
     d = os.path.join(root, "traces", pkg)
     tcp_file = os.path.join(d, f"{pkg}_tcp_trace.txt")
     if not os.path.exists(tcp_file):
@@ -242,7 +253,8 @@ def files(root, pkg, layout):
 
 def packages(root, layout):
     if layout == "qut":
-        return sorted(os.listdir(os.path.join(root, "QUT-DV25_Pattern_Traces")))
+        d = qut_dir(root, "Pattern-Traces")
+        return sorted(os.listdir(d)) if os.path.exists(d) else []
     d = os.path.join(root, "traces")
     if not os.path.exists(d):
         return []
