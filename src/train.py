@@ -12,6 +12,8 @@ from sklearn.ensemble import (
 )
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
@@ -108,6 +110,20 @@ def train_models():
                     max_iter=3000,
                     dual=False
                 )
+            ))
+        ]),
+        'Logistic Regression': Pipeline([
+            ('scaler', MinMaxScaler()),
+            ('classifier', LogisticRegression(
+                max_iter=1000,
+                random_state=42
+            ))
+        ]),
+        'KNN': Pipeline([
+            ('scaler', MinMaxScaler()),
+            ('classifier', KNeighborsClassifier(
+                n_neighbors=5,
+                n_jobs=-1
             ))
         ])
     }

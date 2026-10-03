@@ -43,14 +43,17 @@ MODELS_DIR = os.path.join(
 
 REPORTS_DIR = os.path.join(
     BASE_DIR,
-    'models'
+    'reports'
 )
+os.makedirs(REPORTS_DIR, exist_ok=True)
 
 MODEL_NAMES = [
     'Random-Forest',
     'Decision-Tree',
     'Gradient-Boosting',
-    'SVM'
+    'SVM',
+    'Logistic-Regression',
+    'KNN'
 ]
 
 
@@ -190,15 +193,19 @@ def evaluate_model(name, model, X, y):
 
 
 def plot_confusion_matrices(results, save_path):
-    if not PLT_AVAILABLE:
+    if not PLT_AVAILABLE or not results:
         return
 
+    n = len(results)
+    cols = 3 if n > 4 else 2
+    rows = int(np.ceil(n / cols))
+
     fig, axes = plt.subplots(
-        2,
-        2,
-        figsize=(12, 10)
+        rows,
+        cols,
+        figsize=(6 * cols, 5 * rows)
     )
-    axes = axes.flatten()
+    axes = np.array(axes).flatten()
 
     for idx, res in enumerate(results):
         cm = res['cm']
@@ -353,7 +360,7 @@ def main():
 
     csv_path = os.path.join(
         REPORTS_DIR,
-        'evaluation.csv'
+        'summary.csv'
     )
     summary_df[display_cols].to_csv(
         csv_path,
@@ -365,11 +372,11 @@ def main():
 
     cm_path = os.path.join(
         REPORTS_DIR,
-        'confusion_matrices.png'
+        'confusion-matrices.png'
     )
     roc_path = os.path.join(
         REPORTS_DIR,
-        'roc_curves.png'
+        'roc-curves.png'
     )
 
     plot_confusion_matrices(

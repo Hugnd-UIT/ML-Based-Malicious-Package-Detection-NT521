@@ -6,7 +6,7 @@ from preprocess import transform
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_MODELS = os.path.join(BASE, "models")
-NAMES = ["Random-Forest", "Decision-Tree", "Gradient-Boosting", "SVM"]
+NAMES = ["Random-Forest", "Decision-Tree", "Gradient-Boosting", "SVM", "Logistic-Regression", "KNN"]
 
 
 def load_models():
