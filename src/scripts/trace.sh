@@ -14,11 +14,13 @@ fi
 pkg="$1"
 duration="${2:-120}"
 py="${PYTHON:-python3}"
-cd "$(dirname "$0")"
+base="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$base"
+
 out="traces/${pkg}"
-venv="Environments/${pkg}"
+venv="env/${pkg}"
 rm -rf "$out"
-mkdir -p "$out" Environments
+mkdir -p "$out" env
 
 opts=""
 if [ "${OFFLINE:-0}" = 1 ]; then
@@ -35,7 +37,7 @@ mkdir -p "$out/errors"
 filetop-bpfcc 5 > "$out/${pkg}_filetop_trace.txt" 2>"$out/errors/filetop_trace.err" & fpid=$!
 opensnoop-bpfcc -d 10 > "$out/${pkg}_opensnoop_trace.txt" 2>"$out/errors/opensnoop_trace.err" & opid=$!
 tcpstates-bpfcc > "$out/${pkg}_tcp_trace.txt" 2>"$out/errors/tcp_trace.err" & tpid=$!
-./monitor.sh "$pkg" > "$out/monitor.log" 2>&1 & mpid=$!
+bash "$base/src/scripts/monitor.sh" "$pkg" > "$out/monitor.log" 2>&1 & mpid=$!
 sleep 5
 
 start=$(date +%s)

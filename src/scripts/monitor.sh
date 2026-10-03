@@ -7,6 +7,9 @@ fi
 
 pkg=$1
 
+base="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$base"
+
 out="outputs/${pkg}"
 rm -rf "$out"
 mkdir -p "$out"

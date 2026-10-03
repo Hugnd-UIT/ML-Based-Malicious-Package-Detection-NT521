@@ -32,7 +32,7 @@ Chạy `trace.sh` với tên gói cần kiểm tra (ví dụ: `requests`, thời
 sudo bash src/scripts/trace.sh requests 30
 ```
 
-- Hệ thống tự động tạo môi trường ảo độc lập (`Environments/requests/`), bật đồng thời các probe eBPF (`opensnoop`, `tcpstates`, `filetop`) và `strace` để giám sát toàn bộ lời gọi hệ thống khi `pip install` thực thi.
+- Hệ thống tự động tạo môi trường ảo độc lập (`env/requests/`), bật đồng thời các probe eBPF (`opensnoop`, `tcpstates`, `filetop`) và `strace` để giám sát toàn bộ lời gọi hệ thống khi `pip install` thực thi.
 - Dữ liệu thô được lưu vào:
   - `traces/requests/`: Chứa các log eBPF và nhật ký cài đặt.
   - `outputs/requests/`: Chứa log các system call chi tiết.
@@ -66,13 +66,11 @@ Hệ thống sẽ tiền xử lý dữ liệu qua `preprocess.py` và đưa qua 
 ================================================================
 PACKAGE: requests
 ================================================================
-Model                Prediction      Probability (Malicious)  
+Model                Prediction      Probability  
 ----------------------------------------------------------------
 Random-Forest        BENIGN            2.14%                  
 Decision-Tree        BENIGN            0.00%                  
 Gradient-Boosting    BENIGN            0.85%                  
-SVM                  BENIGN            3.20%                  
-----------------------------------------------------------------
-FINAL VERDICT: BENIGN (0/4 models flagged malicious)
+SVM                  BENIGN            3.20%          
 ================================================================
 ```

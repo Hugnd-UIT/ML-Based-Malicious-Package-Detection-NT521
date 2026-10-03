@@ -38,18 +38,11 @@ def show(pkg, results):
     print("=" * 64)
     print(f"PACKAGE: {pkg}")
     print("=" * 64)
-    print(f"{'Model':<20} {'Prediction':<15} {'Probability (Malicious)':<25}")
+    print(f"{'Model':<21}{'Prediction':<16}Probability")
     print("-" * 64)
-    malicious = 0
     for r in results:
-        prob_str = f"{r['prob'] * 100:>6.2f}%" if r["prob"] is not None else "N/A"
-        print(f"{r['model']:<20} {r['label']:<15} {prob_str:<25}")
-        if r["pred"] == 1:
-            malicious += 1
-    print("-" * 64)
-    total = len(results)
-    final = "MALICIOUS" if malicious >= (total / 2) else "BENIGN"
-    print(f"FINAL VERDICT: {final} ({malicious}/{total} models flagged malicious)")
+        prob = f"{r['prob'] * 100:>7.2f}%" if r["prob"] is not None else "    N/A"
+        print(f"{r['model']:<21}{r['label']:<16}  {prob}")
     print("=" * 64 + "\n")
 
 
