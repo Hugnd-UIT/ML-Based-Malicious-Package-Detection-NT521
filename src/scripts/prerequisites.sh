@@ -8,4 +8,4 @@ bpftool --version
 uname -r
 sudo apt-get install -y bpftrace
 bpftrace --version
-pip3 install virtualenv --break-system-packages
+pip3 install virtualenv scikit-learn pandas joblib --break-system-packages
