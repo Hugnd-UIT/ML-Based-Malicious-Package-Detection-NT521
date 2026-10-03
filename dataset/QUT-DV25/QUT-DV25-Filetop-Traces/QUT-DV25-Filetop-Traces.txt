@@ -1,0 +1,6 @@
+Filetop Traces dataset: 
+
+Monitored file read/write processes (e.g., Read_Processes, Write_Data_Transfer), directly linking to missing critical files like setup.py or pyproject.toml. 
+Detecting unusual file read/write patterns. 
+Monitoring unauthorized file creation, modification, and deletion. 
+Analyzing data exfiltration attempts.

@@ -1,0 +1,6 @@
+Installation traces dataset: 
+
+Tracked dependency chains (direct/indirect), exposing dependency mismatches (e.g., ‘No match distribution’ errors) used in dependency confusion attacks.
+Identifying unexpected dependencies. 
+Detecting suspicious post-installation scripts. 
+Observing resource usage.

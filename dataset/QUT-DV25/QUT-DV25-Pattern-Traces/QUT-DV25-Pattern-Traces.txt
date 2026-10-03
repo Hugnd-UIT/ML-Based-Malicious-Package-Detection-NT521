@@ -1,0 +1,4 @@
+Pattern traces dataset: 
+
+Aggregated sequential behaviors (e.g., Pattern: network socket creation, Pattern: process creation), detecting infinite loops or version cycling.
+Unauthorized pattern identification.

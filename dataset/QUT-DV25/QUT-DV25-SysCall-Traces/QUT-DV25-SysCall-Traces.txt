@@ -1,0 +1,6 @@
+System call dataset: 
+
+Recorded OS-level operations (file I/O, network, security, process management), correlating with system-level sabotage (e.g., shutdowns, freezes). 
+Detection of unauthorized system calls. 
+Monitoring of unauthorized input/output operations. 
+Resource usage, file modification, and network operation-related system call tracking.

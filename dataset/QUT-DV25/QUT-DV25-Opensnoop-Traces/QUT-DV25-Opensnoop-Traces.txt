@@ -1,0 +1,6 @@
+Opensnoop traces dataset: 
+
+Logged directory access patterns (e.g., /root, /usr, /tmp, /sys), revealing unauthorized access to restricted paths like /root/.ssh. 
+Monitoring unauthorized file access. 
+Detecting code injection in a file. 
+Identifying dependency chain attacks.
