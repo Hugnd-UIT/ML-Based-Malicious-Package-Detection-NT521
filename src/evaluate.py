@@ -360,7 +360,7 @@ def main():
 
     csv_path = os.path.join(
         REPORTS_DIR,
-        'summary.csv'
+        'model-performance.csv'
     )
     summary_df[display_cols].to_csv(
         csv_path,
