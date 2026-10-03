@@ -266,9 +266,9 @@ def extract(root, pkg, layout="ours", level=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", required=True)
+    ap.add_argument("--root", default=".")
     ap.add_argument("--layout", choices=["ours", "qut"], default="ours")
-    ap.add_argument("--pkg", action="append")
+    ap.add_argument("--pkg", nargs="*")
     ap.add_argument("--level", type=int, choices=[0, 1])
     ap.add_argument("--out")
     args = ap.parse_args()
