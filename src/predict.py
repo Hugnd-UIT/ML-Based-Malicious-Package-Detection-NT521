@@ -2,7 +2,6 @@ import argparse, os, sys, joblib
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from extract import extract
 from preprocess import transform
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,33 +55,26 @@ def show(pkg, results):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("input", nargs="?", help="path to extracted CSV file")
     ap.add_argument("--csv", help="path to extracted CSV file")
-    ap.add_argument("--pkg", help="package name to predict")
-    ap.add_argument("--root", default=".", help="directory containing traces/ and outputs/")
     args = ap.parse_args()
+
+    csv_path = args.input or args.csv
+    if not csv_path or not os.path.exists(csv_path):
+        print("Usage: python src/predict.py <path_to_extracted.csv>")
+        return
 
     models = load_models()
     if not models:
         print("Error: No models found in models/ directory.")
         return
 
-    if args.csv and os.path.exists(args.csv):
-        df = pd.read_csv(args.csv)
-        for _, row in df.iterrows():
-            pkg = row.get("Package_Name", "Unknown")
-            row_df = pd.DataFrame([row])
-            res = predict_pkg(row_df, models)
-            show(pkg, res)
-    elif args.pkg:
-        pkg = args.pkg
-        row = extract(args.root, pkg, layout="ours")
+    df = pd.read_csv(csv_path)
+    for _, row in df.iterrows():
+        pkg = row.get("Package_Name", "Unknown")
         row_df = pd.DataFrame([row])
         res = predict_pkg(row_df, models)
         show(pkg, res)
-    else:
-        print("Usage:")
-        print("  1. From CSV:   python src/predict.py --csv <extracted.csv>")
-        print("  2. From trace: python src/predict.py --pkg <package_name> [--root <dir>]")
 
 
 if __name__ == "__main__":
