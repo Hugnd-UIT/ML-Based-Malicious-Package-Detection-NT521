@@ -145,13 +145,14 @@ Repository
 
 ## Usage
 
-### 1. Prerequisites & Environment Setup
+### 1. Setup
 
-Install kernel monitoring dependencies, eBPF toolkits (`bcc-tools`), `strace`, and Python dependencies:
+Install kernel monitoring dependencies, eBPF toolkits, `strace`, and python dependencies:
 
 ```bash
 sudo bash src/scripts/prerequisites.sh
-chmod +x src/scripts/trace.sh src/scripts/monitor.sh
+chmod +x src/scripts/monitor.sh
+chmod +x src/scripts/trace.sh 
 ```
 
 ---
@@ -164,7 +165,7 @@ Run live dynamic tracing, feature extraction, and multi-model consensus predicti
 sudo python3 src/main.py <package_name> [duration]
 ```
 
-*Example (trace and analyze `requests` for 30 seconds):*
+*Example:*
 ```bash
 sudo python3 src/main.py requests 30
 ```
@@ -176,38 +177,7 @@ python3 src/main.py requests --skip
 
 ---
 
-### 3. Step-by-Step Execution
-
-#### Step 1: Capture Dynamic Telemetry
-Attach eBPF probes (`opensnoop`, `tcpstates`, `filetop`) and `strace` during isolated package installation:
-
-```bash
-sudo bash src/scripts/trace.sh <package_name> [duration]
-```
-
-#### Step 2: Extract 36 Selected Engineered Features (SEF)
-Parse kernel and user-space telemetry into a 36-feature CSV:
-
-*From live traces:*
-```bash
-python3 src/extract.py --pkg <package_name> --out <package_name>.csv
-```
-
-*From QUT-DV25 raw dataset:*
-```bash
-python3 src/extract.py --root dataset/QUT-DV25-Raw/QUT-DV25-Malicious --layout qut --pkg <package_name> --out <package_name>.csv
-```
-
-#### Step 3: Run Multi-Model AI Consensus Prediction
-Predict the package's maliciousness across all 6 trained classifiers:
-
-```bash
-python3 src/predict.py <package_name>.csv
-```
-
----
-
-### 4. Model Training & Evaluation
+### 3. Model Training & Evaluation
 
 #### Train All 6 Classifiers:
 Train `Random Forest`, `Decision Tree`, `Gradient Boosting`, `SVM`, `Logistic Regression`, and `KNN` on `dataset/train.csv`:
