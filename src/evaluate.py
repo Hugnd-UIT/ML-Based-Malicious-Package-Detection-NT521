@@ -2,6 +2,7 @@ import gc
 import os
 import time
 import joblib
+import collections
 
 import numpy as np
 import pandas as pd
@@ -33,11 +34,18 @@ BASE_DIR = (
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from preprocess import transform
+from train import get_models, load_partition
 
 DATA_PATH = os.path.join(
     BASE_DIR,
     'dataset',
     'test.csv'
+)
+
+TRAIN_PATH = os.path.join(
+    BASE_DIR,
+    'dataset',
+    'train.csv'
 )
 
 MODELS_DIR = os.path.join(
@@ -300,96 +308,109 @@ def plot_roc_curves(results, y_test, save_path):
     )
 
 
+def plot_table(csv_path, save_path):
+    if not PLT_AVAILABLE:
+        return
+    data = pd.read_csv(csv_path)
+    fig, ax = plt.subplots(figsize=(14, 3.5))
+    ax.axis('off')
+    ax.axis('tight')
+
+    table = ax.table(
+        cellText=data.values,
+        colLabels=data.columns,
+        loc='center',
+        cellLoc='center'
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.8)
+
+    for (row, col), cell in table.get_celld().items():
+        if row == 0:
+            cell.set_facecolor('#1f4e79')
+            cell.set_text_props(color='white', weight='bold')
+        elif row % 2 == 0:
+            cell.set_facecolor('#f2f4f8')
+        else:
+            cell.set_facecolor('#ffffff')
+        cell.set_edgecolor('#d0d5dd')
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+
 def main():
     total_start = time.time()
 
     X_test, y_test = load_test_data(DATA_PATH)
+    X_train, y_train = load_partition(TRAIN_PATH, 'Train')
 
-    results = []
+    seeds = [50, 100, 150, 500, 1000, 5000]
+    records = collections.defaultdict(lambda: collections.defaultdict(list))
+    base_results = []
 
-    for name in MODEL_NAMES:
-        model_file = f"{name}.pkl"
-        model_path = os.path.join(
-            MODELS_DIR,
-            model_file
-        )
+    for seed in seeds:
+        print("\n" + "=" * 60)
+        print(f"[*] Running seed: {seed}")
+        print("=" * 60)
 
-        if not os.path.exists(model_path):
-            print(
-                f"[-] Warning: Model file not found: {model_file} - skipping"
-            )
-            continue
+        models = get_models(seed)
 
-        model = joblib.load(model_path)
-        display_name = name.replace('-', ' ')
+        for name, model in models.items():
+            model.fit(X_train, y_train)
 
-        res = evaluate_model(
-            display_name,
-            model,
-            X_test,
-            y_test
-        )
-        results.append(res)
+            if seed == 50:
+                save_name = name.replace(' ', '-') + '.pkl'
+                joblib.dump(model, os.path.join(MODELS_DIR, save_name))
 
-        del model
-        gc.collect()
+            res = evaluate_model(name, model, X_test, y_test)
 
-    if not results:
-        print("[-] No models were evaluated.")
-        return
+            if seed == 50:
+                base_results.append(res)
+
+            for key in ('Accuracy', 'Precision', 'Recall', 'F1_Score', 'ROC_AUC', 'FPR', 'FNR'):
+                records[name][key].append(res[key])
+
+            del model
+            gc.collect()
+
+    summary_rows = []
+    metric_cols = ('Accuracy', 'Precision', 'Recall', 'F1_Score', 'ROC_AUC', 'FPR', 'FNR')
+
+    for name in models.keys():
+        row = {'Model': name}
+        for key in metric_cols:
+            vals = records[name][key]
+            val_mean = np.mean(vals)
+            val_std = np.std(vals)
+            row[key] = f"{val_mean:.4f} ± {val_std:.4f}"
+        summary_rows.append(row)
+
+    summary_df = pd.DataFrame(summary_rows)
+    display_cols = ['Model'] + list(metric_cols)
 
     print("\n" + "=" * 60)
     print("[*] Summary:")
     print("=" * 60)
+    print(summary_df[display_cols].to_string(index=False))
 
-    summary_df = pd.DataFrame(results)
-    display_cols = [
-        'Model',
-        'Accuracy',
-        'Precision',
-        'Recall',
-        'F1_Score',
-        'ROC_AUC',
-        'FPR',
-        'FNR'
-    ]
+    csv_path = os.path.join(REPORTS_DIR, 'model-performance.csv')
+    summary_df[display_cols].to_csv(csv_path, index=False)
+    print(f"\n[+] Saved evaluation summary: {csv_path}")
 
-    print(
-        summary_df[display_cols].to_string(index=False)
-    )
+    img_path = os.path.join(REPORTS_DIR, 'model-performance.png')
+    plot_table(csv_path, img_path)
+    print(f"[+] Saved evaluation table image: {img_path}")
 
-    csv_path = os.path.join(
-        REPORTS_DIR,
-        'model-performance.csv'
-    )
-    summary_df[display_cols].to_csv(
-        csv_path,
-        index=False
-    )
-    print(
-        f"\n[+] Saved evaluation summary: {csv_path}"
-    )
+    cm_path = os.path.join(REPORTS_DIR, 'confusion-matrices.png')
+    roc_path = os.path.join(REPORTS_DIR, 'roc-curves.png')
 
-    cm_path = os.path.join(
-        REPORTS_DIR,
-        'confusion-matrices.png'
-    )
-    roc_path = os.path.join(
-        REPORTS_DIR,
-        'roc-curves.png'
-    )
+    plot_confusion_matrices(base_results, cm_path)
+    plot_roc_curves(base_results, y_test, roc_path)
 
-    plot_confusion_matrices(
-        results,
-        cm_path
-    )
-    plot_roc_curves(
-        results,
-        y_test,
-        roc_path
-    )
-
-    del X_test, y_test, results, summary_df
+    del X_train, y_train, X_test, y_test, records, summary_df
     gc.collect()
 
 

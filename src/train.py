@@ -65,7 +65,56 @@ def load_partition(path, name):
     return X, y
 
 
-def train_models():
+def get_models(seed=50):
+    return {
+        'Dummy Classifier': DummyClassifier(
+            strategy='most_frequent'
+        ),
+        'Random Forest': RandomForestClassifier(
+            n_estimators=100,
+            max_depth=8,
+            random_state=seed,
+            n_jobs=-1
+        ),
+        'Decision Tree': DecisionTreeClassifier(
+            max_depth=8,
+            min_samples_split=10,
+            random_state=seed
+        ),
+        'Gradient Boosting': GradientBoostingClassifier(
+            n_estimators=100,
+            max_depth=5,
+            learning_rate=0.1,
+            random_state=seed
+        ),
+        'SVM': Pipeline([
+            ('scaler', MinMaxScaler()),
+            ('classifier', CalibratedClassifierCV(
+                LinearSVC(
+                    random_state=seed,
+                    max_iter=3000,
+                    dual=False
+                )
+            ))
+        ]),
+        'Logistic Regression': Pipeline([
+            ('scaler', MinMaxScaler()),
+            ('classifier', LogisticRegression(
+                max_iter=1000,
+                random_state=seed
+            ))
+        ]),
+        'KNN': Pipeline([
+            ('scaler', MinMaxScaler()),
+            ('classifier', KNeighborsClassifier(
+                n_neighbors=5,
+                n_jobs=-1
+            ))
+        ])
+    }
+
+
+def train_models(seed=50):
     total_start = time.time()
 
     print("\n" + "=" * 60)
@@ -82,52 +131,7 @@ def train_models():
         f"[+] Features: {X_train.shape[1]} | Train samples: {len(X_train):,}"
     )
 
-    models = {
-        'Dummy Classifier': DummyClassifier(
-            strategy='most_frequent'
-        ),
-        'Random Forest': RandomForestClassifier(
-            n_estimators=100,
-            max_depth=8,
-            random_state=42,
-            n_jobs=-1
-        ),
-        'Decision Tree': DecisionTreeClassifier(
-            max_depth=8,
-            min_samples_split=10,
-            random_state=42
-        ),
-        'Gradient Boosting': GradientBoostingClassifier(
-            n_estimators=100,
-            max_depth=5,
-            learning_rate=0.1,
-            random_state=42
-        ),
-        'SVM': Pipeline([
-            ('scaler', MinMaxScaler()),
-            ('classifier', CalibratedClassifierCV(
-                LinearSVC(
-                    random_state=42,
-                    max_iter=3000,
-                    dual=False
-                )
-            ))
-        ]),
-        'Logistic Regression': Pipeline([
-            ('scaler', MinMaxScaler()),
-            ('classifier', LogisticRegression(
-                max_iter=1000,
-                random_state=42
-            ))
-        ]),
-        'KNN': Pipeline([
-            ('scaler', MinMaxScaler()),
-            ('classifier', KNeighborsClassifier(
-                n_neighbors=5,
-                n_jobs=-1
-            ))
-        ])
-    }
+    models = get_models(seed)
 
     print("\n" + "=" * 60)
     print("[*] Training models...")
