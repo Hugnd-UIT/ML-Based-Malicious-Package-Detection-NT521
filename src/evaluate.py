@@ -52,6 +52,7 @@ REPORTS_DIR = os.path.join(
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 MODEL_NAMES = [
+    'Dummy-Classifier',
     'Random-Forest',
     'Decision-Tree',
     'Gradient-Boosting',
@@ -232,6 +233,9 @@ def plot_confusion_matrices(results, save_path):
         )
         axes[idx].set_xlabel('Predicted Label')
         axes[idx].set_ylabel('True Label')
+
+    for idx in range(n, len(axes)):
+        fig.delaxes(axes[idx])
 
     plt.tight_layout()
     plt.savefig(

@@ -17,6 +17,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
+from sklearn.dummy import DummyClassifier
 
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -82,6 +83,9 @@ def train_models():
     )
 
     models = {
+        'Dummy Classifier': DummyClassifier(
+            strategy='most_frequent'
+        ),
         'Random Forest': RandomForestClassifier(
             n_estimators=100,
             max_depth=8,
