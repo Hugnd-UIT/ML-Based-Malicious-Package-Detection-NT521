@@ -18,6 +18,10 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from preprocess import transform
+
 
 BASE = (
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,14 +60,7 @@ def load_partition(path, name):
             inplace=True
         )
 
-    obj_cols = [
-        col for col in df.columns
-        if df[col].dtype == 'object' or pd.api.types.is_string_dtype(df[col])
-    ]
-    for col in obj_cols:
-        df[col] = pd.factorize(df[col])[0]
-
-    X = df.astype(np.float32)
+    X = transform(df)
     return X, y
 
 

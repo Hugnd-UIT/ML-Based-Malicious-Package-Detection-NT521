@@ -30,6 +30,10 @@ BASE_DIR = (
     else os.path.abspath('.')
 )
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from preprocess import transform
+
 DATA_PATH = os.path.join(
     BASE_DIR,
     'dataset',
@@ -78,15 +82,7 @@ def load_test_data(path):
             inplace=True
         )
 
-    obj_cols = [
-        col for col in df.columns
-        if df[col].dtype == 'object' or pd.api.types.is_string_dtype(df[col])
-    ]
-
-    for col in obj_cols:
-        df[col] = pd.factorize(df[col])[0]
-
-    X = df.astype(np.float32)
+    X = transform(df)
 
     print(
         f"\n[+] Loaded: {len(X):,} test samples | {X.shape[1]} features"

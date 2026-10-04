@@ -1,4 +1,5 @@
 import os
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
@@ -8,6 +9,7 @@ from extract import FEATURES
 
 BASE = os.path.dirname(sys_path)
 TRAIN_PATH = os.path.join(BASE, "dataset", "train.csv")
+MODEL_PATH = os.path.join(BASE, "models", "tmp", "encoder.pkl")
 
 CAT_COLS = [
     "State_Transition",
@@ -36,10 +38,16 @@ _encoder = None
 
 def fit():
     global _encoder
-    if _encoder is None:
-        train = pd.read_csv(TRAIN_PATH, usecols=CAT_COLS)
-        _encoder = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
-        _encoder.fit(train[CAT_COLS].fillna("").astype(str))
+    if _encoder is not None:
+        return _encoder
+    if os.path.exists(MODEL_PATH):
+        _encoder = joblib.load(MODEL_PATH)
+        return _encoder
+    train = pd.read_csv(TRAIN_PATH, usecols=CAT_COLS)
+    _encoder = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
+    _encoder.fit(train[CAT_COLS].fillna("").astype(str))
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    joblib.dump(_encoder, MODEL_PATH)
     return _encoder
 
 
