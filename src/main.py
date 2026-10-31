@@ -30,7 +30,9 @@ def run(pkg, duration, out, skip):
             print("Error: Trace failed.")
             sys.exit(1)
 
-    row = extract(BASE, pkg)
+    # trace.sh stores a local folder or archive under its base name
+    name = os.path.basename(pkg.rstrip("/"))
+    row = extract(BASE, name)
     save(row, out)
     print(f"\n[+] Saved evidence: {out}\n")
 
@@ -41,7 +43,7 @@ def run(pkg, duration, out, skip):
 
     df = pd.DataFrame([row])
     results = predict_pkg(df, models)
-    show(pkg, results)
+    show(name, results)
 
 
 def main():

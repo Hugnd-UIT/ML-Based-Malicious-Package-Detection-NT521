@@ -8,3 +8,9 @@ dataset/QUT-DV25-*/
 env/
 PIDs/
 traces/
+# NT230: raw traces stay local (large); CSV results in runs/ are committed
+runs/*/traces/
+runs/*/outputs/
+wheelhouse/
+sim_packages/
+outputs/

@@ -19,6 +19,10 @@ mkdir -p "$pids"
 pids_file="${pids}/${pkg}.txt"
 rm -f "$pids_file"
 touch "$pids_file"
+# PIDs that must not be traced (fake servers started by trace.sh); marked as already traced.
+for pid in ${IGNORE_PIDS:-}; do
+    echo "$pid" >> "$pids_file"
+done
 
 trap 'pkill -P $$ strace 2>/dev/null; echo "monitor.sh: stopped"; exit 0' INT TERM
 
@@ -42,5 +46,5 @@ while true; do
             fi
         done
     done
-    sleep 1
+    sleep "${POLL:-1}"
 done

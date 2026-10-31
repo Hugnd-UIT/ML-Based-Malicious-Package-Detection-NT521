@@ -1,0 +1,14 @@
+Package_Name,Group,Level,Model,Pred,Prob,Correct
+1337x,benign-pypi,0,Decision-Tree,1,1.0,0
+1337x,benign-pypi,0,KNN,1,1.0,0
+aaiohttp-0.1.tar.gz,mal-qut,1,Dummy-Classifier,0,0.0,0
+aihottp-0.1.tar.gz,mal-qut,1,Dummy-Classifier,0,0.0,0
+aiohhttp-0.1.tar.gz,mal-qut,1,Dummy-Classifier,0,0.0,0
+flask,benign-pypi,0,Decision-Tree,1,0.6905,0
+flask,benign-pypi,0,KNN,1,0.6,0
+requests,benign-pypi,0,Random-Forest,1,0.6557,0
+requests,benign-pypi,0,Decision-Tree,1,0.9382,0
+requests,benign-pypi,0,Gradient-Boosting,1,0.724,0
+requests,benign-pypi,0,SVM,1,0.9893,0
+requests,benign-pypi,0,Logistic-Regression,1,0.9833,0
+requests,benign-pypi,0,KNN,1,1.0,0

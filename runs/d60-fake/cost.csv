@@ -1,0 +1,9 @@
+Package_Name,install_seconds,trace_seconds,ebpf_MB,strace_MB,extract_seconds,transform_ms,rf_predict_ms,max_predict_ms,netmode,strace,duration,pipcache
+benign-config,11.86,60.99,2.19,5.98,0.03,58.84,40.43,1460.78,fake,poll,60,0
+benign-netcheck,11.31,61.45,2.22,24.8,0.035,30.38,39.58,39.58,fake,poll,60,0
+flask,1.46,61.58,1.94,0.0,0.023,43.91,45.5,45.5,fake,poll,60,0
+requests,1.39,60.51,1.99,0.0,0.031,42.55,36.2,36.2,fake,poll,60,0
+sim-delayed,25.32,60.44,1.97,20.66,0.041,34.35,36.13,36.13,fake,poll,60,0
+sim-dropper,23.19,61.32,2.01,18.62,0.035,33.79,49.99,49.99,fake,poll,60,0
+sim-exfil-file,13.13,61.27,2.2,23.86,0.044,45.86,46.52,46.52,fake,poll,60,0
+six,0.89,61.01,1.83,0.0,0.022,35.69,45.22,45.22,fake,poll,60,0

@@ -187,9 +187,22 @@ def target(path):
     return max(cands, key=os.path.getsize) if cands else None
 
 
+def all_files(path):
+    """Every strace file of a package (root process and all children), in a stable order."""
+    if not path or not os.path.isdir(path):
+        return []
+    return sorted(f for f in glob.glob(os.path.join(path, "*")) if os.path.isfile(f))
+
+
 def calls(path):
     entries = []
-    for line in read(target(path)):
+    # DYSEC_ALL_PROCS=1: read every traced process instead of only the largest root file.
+    # The QUT-DV25 method uses the root file only, so this is off by default (comparable with the paper).
+    if os.environ.get("DYSEC_ALL_PROCS") == "1":
+        lines = [l for f in all_files(path) for l in read(f)]
+    else:
+        lines = read(target(path))
+    for line in lines:
         m = RX_CALL.match(line)
         if not m:
             continue

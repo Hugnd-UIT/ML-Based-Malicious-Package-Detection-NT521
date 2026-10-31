@@ -1,0 +1,8 @@
+Package_Name,Group,Level,Model,Pred,Prob,Correct
+sim-delayed,mal-sim,1,Dummy-Classifier,0,0.0,0
+sim-delayed,mal-sim,1,Random-Forest,1,0.5351,1
+sim-delayed,mal-sim,1,Decision-Tree,1,0.6905,1
+sim-delayed,mal-sim,1,Gradient-Boosting,1,0.7225,1
+sim-delayed,mal-sim,1,SVM,0,0.1218,0
+sim-delayed,mal-sim,1,Logistic-Regression,0,0.1436,0
+sim-delayed,mal-sim,1,KNN,1,0.6,1
