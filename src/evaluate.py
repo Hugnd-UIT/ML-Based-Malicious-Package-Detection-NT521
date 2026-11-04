@@ -59,15 +59,15 @@ REPORTS_DIR = os.path.join(
 )
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
+# 4 models of the DySec paper; --extra adds the NT230 baselines (Dummy, LR, KNN).
 MODEL_NAMES = [
-    'Dummy-Classifier',
     'Random-Forest',
     'Decision-Tree',
     'Gradient-Boosting',
     'SVM',
-    'Logistic-Regression',
-    'KNN'
 ]
+if '--extra' in sys.argv:
+    MODEL_NAMES = ['Dummy-Classifier'] + MODEL_NAMES + ['Logistic-Regression', 'KNN']
 
 
 def load_test_data(path):

@@ -65,8 +65,13 @@ def load_partition(path, name):
     return X, y
 
 
-def get_models(seed=50):
-    return {
+# DySec paper (Sec. IV-D): RF, DT, GB, SVM with these hyperparameters.
+# Dummy, Logistic Regression and KNN are NT230 additions, trained only with --extra.
+PAPER_MODELS = ['Random Forest', 'Decision Tree', 'Gradient Boosting', 'SVM']
+
+
+def get_models(seed=50, extra=False):
+    models = {
         'Dummy Classifier': DummyClassifier(
             strategy='most_frequent'
         ),
@@ -112,9 +117,12 @@ def get_models(seed=50):
             ))
         ])
     }
+    if not extra:
+        models = {k: v for k, v in models.items() if k in PAPER_MODELS}
+    return models
 
 
-def train_models(seed=50):
+def train_models(seed=50, extra=False):
     total_start = time.time()
 
     print("\n" + "=" * 60)
@@ -131,7 +139,7 @@ def train_models(seed=50):
         f"[+] Features: {X_train.shape[1]} | Train samples: {len(X_train):,}"
     )
 
-    models = get_models(seed)
+    models = get_models(seed, extra)
 
     print("\n" + "=" * 60)
     print("[*] Training models...")
@@ -165,4 +173,4 @@ def train_models(seed=50):
 
 
 if __name__ == '__main__':
-    train_models()
+    train_models(extra='--extra' in sys.argv)

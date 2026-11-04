@@ -18,8 +18,10 @@ from preprocess import transform
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_MODELS = os.path.join(BASE, "models")
-NAMES = ["Dummy-Classifier", "Random-Forest", "Decision-Tree", "Gradient-Boosting",
-         "SVM", "Logistic-Regression", "KNN"]
+# 4 models of the DySec paper; --extra adds the NT230 baselines (Dummy, LR, KNN).
+PAPER = ["Random-Forest", "Decision-Tree", "Gradient-Boosting", "SVM"]
+EXTRA = ["Dummy-Classifier", "Logistic-Regression", "KNN"]
+NAMES = PAPER + EXTRA if "--extra" in sys.argv else PAPER
 
 
 def read_list(run):
@@ -53,6 +55,8 @@ def main():
     ap.add_argument("run", help="run folder containing traces/ and outputs/")
     ap.add_argument("--all-procs", action="store_true",
                     help="count syscalls of every traced process (children too); output files get the suffix _allproc")
+    ap.add_argument("--extra", action="store_true",
+                    help="also run the NT230 baselines (Dummy, LR, KNN); not part of the paper")
     args = ap.parse_args()
     run = args.run.rstrip("/\\")
     suffix = ""
