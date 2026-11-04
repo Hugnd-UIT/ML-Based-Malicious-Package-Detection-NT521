@@ -7,6 +7,8 @@
 #   NETMODE=real       real | off | fake
 #                        off : iptables rejects all outbound traffic except loopback
 #                        fake: like off, plus fake C2 (127.0.0.1:9999) and fake HTTP (127.0.0.1:8000)
+#                        pypi: like fake, but DNS and HTTPS to PyPI stay open so pip downloads
+#                              dependencies online as in the DySec paper (no OFFLINE needed)
 #   SIM_DIR=sim_packages  folder of the simulated packages; its _harness/ provides decoys and fake servers.
 #   DECOYS=1           create ~/fake_secret.txt and FAKE_TOKEN (for root, since pip runs as root).
 #   STRACE=poll        poll: monitor.sh attaches to python/pip PIDs every POLL seconds (as QUT-DV25)
@@ -19,7 +21,7 @@
 set -u
 
 if [ -z "${1:-}" ]; then
-    echo "Usage: sudo [OFFLINE=1] [NETMODE=real|off|fake] [STRACE=poll|wrap] ./trace.sh <package|file.tar.gz|./dir> [seconds=120]"
+    echo "Usage: sudo [OFFLINE=1] [NETMODE=real|off|fake|pypi] [STRACE=poll|wrap] ./trace.sh <package|file.tar.gz|./dir> [seconds=120]"
     exit 1
 fi
 
@@ -54,7 +56,7 @@ if [ "${OFFLINE:-0}" = 1 ]; then
     opts="--no-index --find-links $(pwd)/wheelhouse/${py}"
     [ -d "wheelhouse/${py}" ] || { echo "Missing wheelhouse/${py} - run prepare_wheelhouse.sh before offline run"; exit 1; }
 fi
-if [ "$netmode" != real ] && [ "${OFFLINE:-0}" != 1 ]; then
+if [ "$netmode" != real ] && [ "$netmode" != pypi ] && [ "${OFFLINE:-0}" != 1 ]; then
     echo "NETMODE=$netmode blocks PyPI: also set OFFLINE=1"
     exit 1
 fi
@@ -73,10 +75,18 @@ net_on() {
     for t in iptables ip6tables; do
         $t -N DYSEC_NET 2>/dev/null || $t -F DYSEC_NET
         $t -A DYSEC_NET -o lo -j ACCEPT
+        if [ "$netmode" = pypi ]; then
+            $t -A DYSEC_NET -p udp --dport 53 -j ACCEPT
+            $t -A DYSEC_NET -p tcp --dport 53 -j ACCEPT
+            fam=ahostsv4; [ "$t" = ip6tables ] && fam=ahostsv6
+            for ip in $(getent $fam pypi.org files.pythonhosted.org | awk '{print $1}' | sort -u); do
+                $t -A DYSEC_NET -p tcp -d "$ip" --dport 443 -j ACCEPT
+            done
+        fi
         $t -A DYSEC_NET -j REJECT
         $t -I OUTPUT 1 -j DYSEC_NET
     done
-    if [ "$netmode" = fake ]; then
+    if [ "$netmode" = fake ] || [ "$netmode" = pypi ]; then
         $py "$sim_dir/_harness/fake_c2.py" > "$out/fake_c2.log" 2>&1 & fakes="$fakes $!"
         $py "$sim_dir/_harness/fake_http.py" > "$out/fake_http.log" 2>&1 & fakes="$fakes $!"
         sleep 1

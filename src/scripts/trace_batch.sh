@@ -39,7 +39,14 @@ tail -n +2 "$list" | while IFS=, read -r name spec label group; do
     cleanup
     bash "$base/src/scripts/trace.sh" "$spec" "$duration" < /dev/null
     rm -rf "$run/traces/$name" "$run/outputs/$name"
-    mv "traces/$(basename "${spec%/}")" "$run/traces/$name"
+    src="$(basename "${spec%/}")"
+    mv "traces/$src" "$run/traces/$name"
+    # files are named after what was installed (e.g. requests-2.34.2.tar.gz_...); rename to the list name
+    if [ "$src" != "$name" ]; then
+        for f in "$run/traces/$name/${src}"_*; do
+            [ -e "$f" ] && mv "$f" "$run/traces/$name/${name}_${f##*/${src}_}"
+        done
+    fi
     mv "outputs/$(basename "${spec%/}")" "$run/outputs/$name" 2>/dev/null
 done
 cleanup

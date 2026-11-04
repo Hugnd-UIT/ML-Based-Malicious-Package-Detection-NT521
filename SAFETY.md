@@ -4,7 +4,7 @@
 
 - **Không bao giờ cài gói độc trên máy thật.** Chỉ cài trong VM Ubuntu đã có snapshot sạch.
 - **NT230 dùng gói mô phỏng vô hại** (`sim_packages/`, do Đăng viết) thay cho gói độc thật. Gói mô phỏng chỉ đọc file mồi, chỉ kết nối `127.0.0.1`, chỉ chạy `echo hello`.
-- **Mạng tắt hoặc giả lập** khi cài gói mô phỏng: `NETMODE=off` hoặc `NETMODE=fake`. Hai chế độ này dùng iptables chặn mọi kết nối ra ngoài, chỉ chừa loopback. Chế độ `fake` bật thêm server giả `127.0.0.1:9999` (C2) và `127.0.0.1:8000` (HTTP).
+- **Mạng tắt, giả lập hoặc chỉ mở PyPI** khi cài gói mô phỏng: `NETMODE=off`, `fake` hoặc `pypi`. `pypi` chỉ mở DNS và HTTPS tới `pypi.org`, `files.pythonhosted.org` để pip tải dependency như bài báo. Cả ba chế độ dùng iptables chặn mọi kết nối ra ngoài còn lại, chỉ chừa loopback. `fake` và `pypi` bật thêm server giả `127.0.0.1:9999` (C2) và `127.0.0.1:8000` (HTTP).
 - **Không đẩy lên git:** gói độc thật, raw trace của gói độc thật, thư mục `sim_packages/` dưới dạng cài được. `.gitignore` đã chặn `sim_packages/`, `wheelhouse/`, `runs/*/traces/`, `runs/*/outputs/`.
 
 ## Quy trình
@@ -29,4 +29,4 @@
 - [ ] VM đã có snapshot sạch, đang ở snapshot đó
 - [ ] `sudo iptables -L OUTPUT` không còn chain `DYSEC_NET` sót lại từ lần trước
 - [ ] Không có thư mục chia sẻ (shared folder) ghi được từ VM ra máy thật trong lúc cài
-- [ ] Chạy gói mô phỏng với `NETMODE=off` hoặc `fake`, không dùng `real`
+- [ ] Chạy gói mô phỏng với `NETMODE=off`, `fake` hoặc `pypi`, không dùng `real`

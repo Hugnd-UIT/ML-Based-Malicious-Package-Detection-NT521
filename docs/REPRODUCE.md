@@ -33,36 +33,36 @@ bash src/scripts/prepare_sdist.sh dataset/our-traces/packages.csv python3       
 | strace | quét PID python/pip mỗi 1 s | `STRACE=poll`, `POLL=1` (mặc định) |
 | Thời gian | 120 s trong và sau khi cài | 120 s |
 | pip cache | `--no-cache-dir` | `PIPCACHE=0` (mặc định) |
-| Mạng | mạng riêng, cô lập (router và switch riêng) | `NETMODE=fake`: chặn mọi kết nối ra ngoài, chỉ chừa loopback |
+| Mạng | mạng riêng, cô lập; pip tải dependency từ PyPI | `NETMODE=pypi`: chỉ mở DNS và HTTPS tới PyPI, chặn mọi chỗ khác; pip tải dependency online |
 | Feature | 36 feature | `src/extract.py`, 36 feature |
 | Model | RF, DT, GB, SVM; chia 70/15/15 | `python src/train.py` train đúng 4 model, cùng tham số |
 | Lúc dùng thật | chỉ chạy model tốt nhất (RF) | `src/main.py`, `src/predict.py` chỉ chạy RF |
 
-Hai chỗ còn khác và không sửa được: máy (ARM so với x86) và mạng. Quy định NT230 bắt gói mô phỏng phải chạy với mạng tắt hoặc giả lập, nên phần A dùng `NETMODE=fake` cho **cả gói lành lẫn gói mô phỏng**, để hai nhãn chịu cùng một điều kiện mạng.
+Chỗ còn khác và không sửa được: máy (ARM so với x86). Gói mô phỏng chỉ kết nối `127.0.0.1`, nên mở riêng PyPI không làm chúng ra được ngoài; cả hai nhãn chạy cùng `NETMODE=pypi`.
 
 ### A2. Thu trace
 
 ```bash
-sudo OFFLINE=1 NETMODE=fake DECOYS=1 ./src/scripts/trace_batch.sh dataset/our-traces/packages_sdist.csv paper-d120 120
+sudo NETMODE=pypi DECOYS=1 ./src/scripts/trace_batch.sh dataset/our-traces/packages_sdist.csv paper-pypi-d120 120
 ```
 
-Mất khoảng 50 phút. Kết quả nằm trong `runs/paper-d120/`. Revert snapshot khi xong.
+Mất khoảng 50 phút. Kết quả nằm trong `runs/paper-pypi-d120/`. Revert snapshot khi xong.
 
 `DECOYS=1` tạo `/root/fake_secret.txt` và biến `FAKE_TOKEN` cho các gói mô phỏng. Script chạy bằng sudo nên `~` là `/root`.
 
 ### A3. Xử lý và dự đoán
 
 ```bash
-python src/collect.py runs/paper-d120        # 4 model của bài báo
-python src/manifest.py runs/paper-d120
-python src/predict.py runs/paper-d120/features.csv             # kết luận theo RF
-python src/predict.py --compare runs/paper-d120/features.csv   # xem thêm DT, GB, SVM
+python src/collect.py runs/paper-pypi-d120        # 4 model của bài báo
+python src/manifest.py runs/paper-pypi-d120
+python src/predict.py runs/paper-pypi-d120/features.csv             # kết luận theo RF
+python src/predict.py --compare runs/paper-pypi-d120/features.csv   # xem thêm DT, GB, SVM
 ```
 
 ### A4. Demo
 
 ```bash
-sudo OFFLINE=1 NETMODE=fake DECOYS=1 python3 src/main.py sdist/<file sim-exfil-file>.tar.gz 120
+sudo NETMODE=pypi DECOYS=1 python3 src/main.py sdist/<file sim-exfil-file>.tar.gz 120
 cat /tmp/dysec_sim_markers/sim-exfil-file.log     # gói đã làm gì
 ```
 
@@ -72,7 +72,7 @@ Quay màn hình làm video backup. Revert snapshot sau demo.
 
 Các lượt dưới đây đổi đúng một điều kiện so với phần A, để xem điều kiện đó ảnh hưởng tới feature và kết quả ra sao.
 
-Các lượt đã thu trong `runs/` (d60/d120/d300-fake, delayed, d120-wrap, w2, w3) đều cài gói PyPI từ wheel. Vì vậy chúng thuộc phần B, không phải phần A.
+Các lượt đã thu trong `runs/` (d60/d120/d300-fake, delayed, d120-wrap, w2, w3) đều cài gói PyPI từ wheel, nên thuộc phần B. `paper-d120` cài từ `.tar.gz` nhưng dependency lấy offline từ wheelhouse (`NETMODE=fake`), nên cũng thuộc phần B.
 
 | Thí nghiệm | Khác phần A ở chỗ | Lệnh (thêm `sudo` ở đầu) |
 |---|---|---|

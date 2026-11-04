@@ -251,16 +251,29 @@ def files(root, pkg, layout):
                 "install": g("Installation-Traces", "install_log.txt"),
                 "strace": os.path.join(qut_dir(root, "Pattern-Traces"), pkg)}
     d = os.path.join(root, "traces", pkg)
-    tcp_file = os.path.join(d, f"{pkg}_tcp_trace.txt")
+
+    def f(suffix):
+        # trace.sh names files after what pip installed (e.g. requests-2.34.2.tar.gz_...),
+        # while trace_batch.sh names the folder after the list entry, so fall back to the only match.
+        path = os.path.join(d, f"{pkg}_{suffix}")
+        if not os.path.exists(path) and os.path.isdir(d):
+            hits = [n for n in os.listdir(d) if n.endswith("_" + suffix)]
+            if len(hits) == 1:
+                path = os.path.join(d, hits[0])
+        if not os.path.exists(path):
+            print(f"[!] {pkg}: missing {suffix}", file=sys.stderr)
+        return path
+
+    tcp_file = f("tcp_trace.txt")
     if not os.path.exists(tcp_file):
         tcp_file = os.path.join(d, f"{pkg}_tcptraces.txt")
     strace_dir = os.path.join(root, "outputs", pkg)
     if not os.path.exists(strace_dir):
         strace_dir = os.path.join(root, "Trace_Outputs", pkg)
-    return {"opensnoop": os.path.join(d, f"{pkg}_opensnoop_trace.txt"),
+    return {"opensnoop": f("opensnoop_trace.txt"),
             "tcp": tcp_file,
-            "filetop": os.path.join(d, f"{pkg}_filetop_trace.txt"),
-            "install": os.path.join(d, f"{pkg}_install_log.txt"),
+            "filetop": f("filetop_trace.txt"),
+            "install": f("install_log.txt"),
             "strace": strace_dir}
 
 
