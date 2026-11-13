@@ -1,8 +1,8 @@
 """Checksums and environment summary of one trace run, for the data card.
 
-    python src/manifest.py runs/<tag>
+    python src/manifest.py results/runs/<tag>
 
-Writes runs/<tag>/manifest.csv (path, bytes, sha256 of every file) and prints the
+Writes results/runs/<tag>/manifest.csv (path, bytes, sha256 of every file) and prints the
 environment recorded by trace.sh (OS, kernel, Python, pip, bcc, strace, settings).
 """
 import argparse, csv, hashlib, os

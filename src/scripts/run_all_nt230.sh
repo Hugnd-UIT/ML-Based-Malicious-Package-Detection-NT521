@@ -14,22 +14,22 @@ chmod +x src/scripts/*.sh
 export OFFLINE=1 NETMODE=fake DECOYS=1
 
 run() {  # run <list> <tag> <seconds>
-    if [ -f "runs/$2/packages.csv" ] && [ "$(ls "runs/$2/traces" 2>/dev/null | wc -l)" -ge "$(( $(wc -l < "$1") - 1 ))" ]; then
+    if [ -f "results/runs/$2/packages.csv" ] && [ "$(ls "results/runs/$2/traces" 2>/dev/null | wc -l)" -ge "$(( $(wc -l < "$1") - 1 ))" ]; then
         echo "### skip $2 (already done)"; return
     fi
     echo "################ $2 ($3 s) $(date '+%F %T')"
-    rm -rf "runs/$2"
+    rm -rf "results/runs/$2"
     bash src/scripts/trace_batch.sh "$1" "$2" "$3"
 }
 
 if [ "$part" = core ] || [ "$part" = all ]; then
-    run dataset/our-traces/packages.csv d120-fake 120
-    run dataset/our-traces/packages_delayed.csv delayed-120 120
-    run dataset/our-traces/packages_delayed.csv delayed-300 300
+    run data/packages.csv d120-fake 120
+    run data/packages_delayed.csv delayed-120 120
+    run data/packages_delayed.csv delayed-300 300
 fi
 if [ "$part" = sens ] || [ "$part" = all ]; then
-    run dataset/our-traces/packages_sens.csv d60-fake 60
-    run dataset/our-traces/packages_sens.csv d300-fake 300
+    run data/packages_sens.csv d60-fake 60
+    run data/packages_sens.csv d300-fake 300
 fi
 echo "################ DONE $(date '+%F %T')"
 ls runs

@@ -1,6 +1,6 @@
 """Explain why packages traced by us are classified differently from QUT-DV25 (distribution shift).
 
-    python src/shift.py runs/<tag>/features.csv [--pkg requests] [--out file.md]
+    python src/shift.py results/runs/<tag>/features.csv [--pkg requests] [--out file.md]
 
 For every package:
   * unseen  : categorical columns whose text never appears in train.csv (encoded as -1)

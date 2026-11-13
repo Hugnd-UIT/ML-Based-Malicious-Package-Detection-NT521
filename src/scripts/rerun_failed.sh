@@ -2,7 +2,7 @@
 # Usage: sudo [same options as trace.sh] ./rerun_failed.sh <run_tag> [max_tries=3]
 #
 # bcc's filetop sometimes dies in the middle of a trace (BPF_MAP_LOOKUP_AND_DELETE_BATCH: No space left on device),
-# which loses part of the filetop features. This finds every package of runs/<run_tag>/ whose meta.env says
+# which loses part of the filetop features. This finds every package of results/runs/<run_tag>/ whose meta.env says
 # probe_died != none, traces it again (same duration) until no probe died, then replaces the old trace.
 # If it still fails after max_tries, the old trace is kept and the package is listed at the end.
 set -u
@@ -12,7 +12,7 @@ tag="$1"
 tries="${2:-3}"
 base="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$base"
-run="runs/$tag"
+run="results/runs/$tag"
 [ -d "$run/traces" ] || { echo "No such run: $run"; exit 1; }
 
 still=""
@@ -27,13 +27,13 @@ for meta in "$run"/traces/*/meta.env; do
     ok=0
     for i in $(seq 1 "$tries"); do
         retry="${tag}-retry"
-        rm -rf "runs/$retry"
+        rm -rf "results/runs/$retry"
         bash src/scripts/trace_batch.sh "$list" "$retry" "$duration" < /dev/null
-        new="runs/$retry/traces/$name/meta.env"
+        new="results/runs/$retry/traces/$name/meta.env"
         if [ -f "$new" ] && grep -q '^probe_died=none' "$new"; then
             rm -rf "$run/traces/$name" "$run/outputs/$name"
-            mv "runs/$retry/traces/$name" "$run/traces/$name"
-            [ -d "runs/$retry/outputs/$name" ] && mv "runs/$retry/outputs/$name" "$run/outputs/$name"
+            mv "results/runs/$retry/traces/$name" "$run/traces/$name"
+            [ -d "results/runs/$retry/outputs/$name" ] && mv "results/runs/$retry/outputs/$name" "$run/outputs/$name"
             echo "######## $name: OK on try $i"
             ok=1
             break
@@ -41,7 +41,7 @@ for meta in "$run"/traces/*/meta.env; do
         echo "######## $name: try $i failed again"
     done
     rm -f "$list"
-    rm -rf "runs/${tag}-retry"
+    rm -rf "results/runs/${tag}-retry"
     [ "$ok" = 1 ] || still="$still $name"
 done
 echo "################ rerun finished. Still failing (old trace kept):${still:- none}"

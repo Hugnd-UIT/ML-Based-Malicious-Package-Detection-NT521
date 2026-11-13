@@ -1,8 +1,8 @@
-"""Turn one trace run (runs/<tag>/) into features, predictions and cost tables.
+"""Turn one trace run (results/runs/<tag>/) into features, predictions and cost tables.
 
-    python src/collect.py runs/<tag>
+    python src/collect.py results/runs/<tag>
 
-Writes into runs/<tag>/:
+Writes into results/runs/<tag>/:
     features.csv     Package_Name + 36 features + Level + Group  (cross-dataset test set for Hung)
     predictions.csv  one row per package x model: pred, prob, correct
     errors.csv       only the wrong predictions (FP/FN) for the error taxonomy
@@ -27,7 +27,7 @@ NAMES = PAPER + EXTRA if "--extra" in sys.argv else PAPER
 def read_list(run):
     path = os.path.join(run, "packages.csv")
     if not os.path.exists(path):
-        path = os.path.join(BASE, "dataset", "our-traces", "packages.csv")
+        path = os.path.join(BASE, "data", "packages.csv")
     with open(path, encoding="utf-8") as f:
         return {r["name"]: r for r in csv.DictReader(f)}
 

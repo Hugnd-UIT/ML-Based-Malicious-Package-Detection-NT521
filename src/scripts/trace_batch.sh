@@ -2,11 +2,11 @@
 # Usage: sudo [same options as trace.sh] ./trace_batch.sh <list.csv> <run_tag> [seconds=120]
 #
 # Traces every package of <list.csv> (columns: name,spec,label,group) one after another and
-# moves each result to runs/<run_tag>/ so that runs with different settings never overwrite
+# moves each result to results/runs/<run_tag>/ so that runs with different settings never overwrite
 # each other. Between two packages, leftovers of the simulated packages are removed
 # (background processes, markers, dropped files) so they do not leak into the next trace.
 # Real malicious packages must NOT be run with this script: trace them one by one and
-# revert the VM snapshot after each (see SAFETY.md).
+# revert the VM snapshot after each.
 set -u
 
 if [ $# -lt 2 ]; then
@@ -23,7 +23,7 @@ tag="$2"
 duration="${3:-120}"
 base="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$base"
-run="runs/${tag}"
+run="results/runs/${tag}"
 mkdir -p "$run/traces" "$run/outputs"
 cp "$list" "$run/packages.csv"
 

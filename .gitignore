@@ -2,16 +2,43 @@ __pycache__/
 *.py[cod]
 *$py.class
 .ipynb_checkpoints/
+.venv/
 
+# QUT-DV25 raw/processed folders (download separately, see dataset/README.md)
 dataset/QUT-DV25-*/
 
+# Created inside the VM while tracing (never commit)
 env/
 PIDs/
 traces/
-# NT230: raw traces stay local (large); CSV results in runs/ are committed
-runs/*/traces/
-runs/*/outputs/
-wheelhouse/
-sim_packages/
 outputs/
+wheelhouse/
 sdist/
+batch.log
+# Simulated packages (Dang) and malicious sample archives stay out of the repo
+sim_packages/
+*.tar.gz
+*.tgz
+
+# Raw traces stay local (large); CSV/MD results in results/runs/<tag>/ are committed
+results/runs/*/traces/
+results/runs/*/outputs/
+results/runs/*-retry/
+
+# Generated models: python src/authors.py train / python src/variant/train_variant.py
+models/authors/
+models/variant/
+
+# Per-lap working files written by src/variant/verify*.sh in the repo root
+/ver_*.csv
+/ver_*.txt
+/fresh_*
+/lapc*
+/lapd*
+/lape*
+
+# Word lock files
+~$*
+
+# Logs written by the fake servers
+src/harness/*.log

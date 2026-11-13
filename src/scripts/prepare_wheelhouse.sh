@@ -22,7 +22,9 @@ mkdir -p "$dst"
 tmp="$(mktemp -d)"
 $py -m venv "$tmp/venv"
 pip="$tmp/venv/bin/pip"
-$pip download -d "$dst" pip setuptools wheel
+# trace.sh pins these versions (as in the QUT-DV25 raw traces)
+$pip download -d "$dst" "pip==24.3.1" "setuptools==75.3.0" "wheel==0.43.0"
+$pip download -d "$dst" --no-deps "wheel==0.45.1"
 
 tail -n +2 "$list" | while IFS=, read -r name spec label group; do
     case "$name" in ""|\#*) continue ;; esac

@@ -55,7 +55,7 @@ MODELS_DIR = os.path.join(
 
 REPORTS_DIR = os.path.join(
     BASE_DIR,
-    'reports'
+    'results', 'qut-test'
 )
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
@@ -356,12 +356,13 @@ def main():
         print(f"[*] Running seed: {seed}")
         print("=" * 60)
 
-        models = get_models(seed)
+        models = get_models(seed, extra='--extra' in sys.argv)
 
         for name, model in models.items():
             model.fit(X_train, y_train)
 
-            if seed == 50:
+            # models/*.pkl are fixed (their sha256 is checked by docs/protocols); overwrite only with --save
+            if seed == 50 and '--save' in sys.argv:
                 save_name = name.replace(' ', '-') + '.pkl'
                 joblib.dump(model, os.path.join(MODELS_DIR, save_name))
 

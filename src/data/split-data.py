@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 BASE = (
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     if '__file__' in globals()
     else os.path.abspath('.')
 )

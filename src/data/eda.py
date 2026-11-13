@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-base = os.path.dirname(os.path.abspath(__file__))
+base = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'dataset')
 path = os.path.join(base, 'QUT-DV25.csv')
 
 

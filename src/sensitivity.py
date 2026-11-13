@@ -1,8 +1,8 @@
 """Compare the same packages traced under different settings (duration, network, cache, strace mode).
 
-    python src/sensitivity.py runs/d60 runs/d120 runs/d300 [--model Random-Forest] [--out file.md]
+    python src/sensitivity.py results/runs/d60 results/runs/d120 results/runs/d300 [--model Random-Forest] [--out file.md]
 
-Each run must already have features.csv and predictions.csv (python src/collect.py runs/<tag>).
+Each run must already have features.csv and predictions.csv (python src/collect.py results/runs/<tag>).
 For every package present in all runs it prints how the numeric features move and whether
 the verdict of the model changes; a verdict that flips is exactly what the NT230 report asks for.
 """
