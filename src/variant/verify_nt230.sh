@@ -25,7 +25,8 @@ export PIPARGS="${PIPARGS:-}"
 [ -d wheelhouse/python3 ] && [ -d wheelhouse/python3.8 ] || { echo "Missing wheelhouse: run src/scripts/prepare_mirror.sh first"; exit 1; }
 
 echo "=== START $(date) | $TAG | NETMODE=$NETMODE DURATION=$DURATION PIPARGS='$PIPARGS' LIST=$LIST | $(nproc) CPU | $(uname -r) | $(. /etc/os-release && echo "$PRETTY_NAME") | commit $(git log --oneline -1 2>/dev/null)"
-python3 src/variant/train_variant.py || exit 1
+# use the committed variant models; train only if they are missing
+[ -f models/variant/rf_drop_g1g2.pkl ] && [ -f models/variant/rf_drop_g1g2g3.pkl ] || python3 src/variant/train_variant.py || exit 1
 sha256sum models/variant/*.pkl models/Random-Forest.pkl
 if command -v vmware-hgfsclient >/dev/null && [ -n "$(vmware-hgfsclient 2>/dev/null)" ]; then echo "!!! Shared Folders on: stop"; exit 1; fi
 if grep -qs hgfs /proc/mounts; then echo "!!! hgfs mounted: stop"; exit 1; fi
