@@ -6,12 +6,14 @@ from preprocess import transform
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_MODELS = os.path.join(BASE, "models")
-NAMES = ["Random-Forest", "Decision-Tree", "Gradient-Boosting", "SVM", "Logistic-Regression", "KNN"]
+# DySec paper (Sec. III): the 4 models are only compared; the best one (RF) is deployed.
+DEPLOYED = "Random-Forest"
+PAPER = ["Random-Forest", "Decision-Tree", "Gradient-Boosting", "SVM"]
 
 
-def load_models():
+def load_models(compare=False):
     models = {}
-    for name in NAMES:
+    for name in (PAPER if compare else [DEPLOYED]):
         path = os.path.join(DIR_MODELS, f"{name}.pkl")
         if os.path.exists(path):
             models[name] = joblib.load(path)
@@ -43,6 +45,11 @@ def show(pkg, results):
     for r in results:
         prob = f"{r['prob'] * 100:>7.2f}%" if r["prob"] is not None else "    N/A"
         print(f"{r['model']:<21}{r['label']:<16}  {prob}")
+    if len(results) > 1:
+        final = next((r for r in results if r["model"] == DEPLOYED), None)
+        if final:
+            print("-" * 64)
+            print(f"VERDICT ({DEPLOYED}): {final['label']}")
     print("=" * 64 + "\n")
 
 
@@ -50,6 +57,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("input", nargs="?", help="path to extracted CSV file")
     ap.add_argument("--csv", help="path to extracted CSV file")
+    ap.add_argument("--compare", action="store_true", help="also show DT, GB, SVM (paper comparison)")
     args = ap.parse_args()
 
     csv_path = args.input or args.csv
@@ -57,7 +65,7 @@ def main():
         print("Usage: python src/predict.py <path_to_extracted.csv>")
         return
 
-    models = load_models()
+    models = load_models(args.compare)
     if not models:
         print("Error: No models found in models/ directory.")
         return
