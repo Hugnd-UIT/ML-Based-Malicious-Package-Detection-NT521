@@ -1,2 +1,0 @@
-Package_Name,install_seconds,trace_seconds,ebpf_MB,strace_MB,extract_seconds,transform_ms,rf_predict_ms,max_predict_ms,netmode,strace,duration,pipcache
-sim-delayed,11.48,121.61,2.22,6.32,0.025,52.09,39.9,1556.6,fake,poll,120,0

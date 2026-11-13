@@ -42,3 +42,5 @@ models/variant/
 
 # Logs written by the fake servers
 src/harness/*.log
+/F[0-9]_*
+/F[0-9].log

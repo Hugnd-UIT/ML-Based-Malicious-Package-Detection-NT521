@@ -1,9 +1,0 @@
-name,spec,label,group
-requests,requests,0,benign-pypi
-flask,flask,0,benign-pypi
-six,six,0,benign-pypi
-benign-config,sim_packages/benign_hook/benign-config,0,benign-hook
-benign-netcheck,sim_packages/benign_hook/benign-netcheck,0,benign-hook
-sim-exfil-file,sim_packages/mal_sim/sim-exfil-file,1,mal-sim
-sim-dropper,sim_packages/mal_sim/sim-dropper,1,mal-sim
-sim-delayed,sim_packages/mal_sim/sim-delayed,1,mal-sim

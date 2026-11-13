@@ -1,6 +1,0 @@
-Package_Name,install_seconds,trace_seconds,ebpf_MB,strace_MB,extract_seconds,transform_ms,rf_predict_ms,max_predict_ms,netmode,strace,duration,pipcache
-1337x,,,25.65,14.61,0.317,72.08,38.34,1595.76,,,,
-Acquisition,,,25.22,6.2,0.476,50.99,67.63,67.63,,,,
-adafruit-io,,,26.2,40.87,0.451,36.38,64.23,64.23,,,,
-flask,,,25.85,8.86,0.413,43.14,68.62,68.62,,,,
-requests,,,25.8,6.64,0.452,39.53,68.22,68.22,,,,

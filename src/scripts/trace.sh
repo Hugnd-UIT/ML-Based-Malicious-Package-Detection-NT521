@@ -68,13 +68,13 @@ mkdir -p "$out/errors" env
 opts=""
 if [ "${OFFLINE:-0}" = 1 ]; then
     opts="--no-index --find-links $(pwd)/wheelhouse/${py}"
-    [ -d "wheelhouse/${py}" ] || { echo "Missing wheelhouse/${py} - run prepare_wheelhouse.sh first"; exit 1; }
+    [ -d "wheelhouse/${py}" ] || { echo "Missing wheelhouse/${py} - run src/scripts/prepare_mirror.sh first"; exit 1; }
 fi
 case "$netmode" in
     real|pypi) ;;
     off|fake) [ "${OFFLINE:-0}" = 1 ] || { echo "NETMODE=$netmode blocks PyPI: also set OFFLINE=1"; exit 1; } ;;
     mirror)
-        [ -d "wheelhouse/${py}" ] || { echo "Missing wheelhouse/${py} - run prepare_wheelhouse.sh first"; exit 1; }
+        [ -d "wheelhouse/${py}" ] || { echo "Missing wheelhouse/${py} - run src/scripts/prepare_mirror.sh first"; exit 1; }
         opts="--no-index --find-links http://127.0.0.1:8081/" ;;
     *) echo "Unknown NETMODE=$netmode"; exit 1 ;;
 esac

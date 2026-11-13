@@ -254,7 +254,7 @@ def files(root, pkg, layout):
 
     def f(suffix):
         # trace.sh names files after what pip installed (e.g. requests-2.34.2.tar.gz_...),
-        # while trace_batch.sh names the folder after the list entry, so fall back to the only match.
+        # while the folder may be named after the list entry, so fall back to the only match.
         path = os.path.join(d, f"{pkg}_{suffix}")
         if not os.path.exists(path) and os.path.isdir(d):
             hits = [n for n in os.listdir(d) if n.endswith("_" + suffix)]

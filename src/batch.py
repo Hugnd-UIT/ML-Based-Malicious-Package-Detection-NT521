@@ -1,4 +1,4 @@
-import argparse, csv, os, shutil, subprocess, sys
+import argparse, csv, os, shutil, subprocess, sys, time
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -78,7 +78,9 @@ def main():
 
     with open(args.out, "a", newline="", encoding="utf-8") as fo, \
          open(args.features, "a", newline="", encoding="utf-8") as ff:
-        cols = ["Package_Name", "Status", "Probe_Died", "Attach_Delay", "Install_Seconds"] + list(models) + list(variants)
+        # Extract/Predict_Seconds, Trace_Bytes: latency after feature extraction and collection cost (YC_R49)
+        cols = ["Package_Name", "Status", "Probe_Died", "Attach_Delay", "Install_Seconds",
+                "Extract_Seconds", "Predict_Seconds", "Trace_Bytes"] + list(models) + list(variants)
         if not new_out:                      # resuming an older CSV: keep its columns
             with open(args.out, encoding="utf-8") as f:
                 cols = next(csv.reader(f), cols)
@@ -114,11 +116,18 @@ def main():
             row = {"Package_Name": pkg, "Status": st, "Probe_Died": died,
                    "Attach_Delay": delay, "Install_Seconds": secs}
             if os.path.isdir(os.path.join(BASE, "traces", pkg)):
+                row["Trace_Bytes"] = sum(os.path.getsize(os.path.join(r, f))
+                                         for top in ("traces", "outputs") for r, _, fs in os.walk(os.path.join(BASE, top, pkg))
+                                         for f in fs)
+                t0 = time.perf_counter()
                 feats = extract(BASE, pkg)
+                row["Extract_Seconds"] = round(time.perf_counter() - t0, 3)
                 wf.writerow({k: feats.get(k, "") for k in ["Package_Name"] + FEATURES})
                 ff.flush()
+                t0 = time.perf_counter()
                 for r in predict_pkg(pd.DataFrame([feats]), models):
                     row[r["model"]] = round(r["prob"], 4) if r["prob"] is not None else ""
+                row["Predict_Seconds"] = round(time.perf_counter() - t0, 4)
                 X = transform(pd.DataFrame([feats]))
                 for name, v in variants.items():
                     row[name] = round(float(v["model"].predict_proba(X[v["cols"]])[0][1]), 4)

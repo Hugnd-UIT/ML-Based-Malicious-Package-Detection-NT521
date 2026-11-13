@@ -1,4 +1,0 @@
-Package_Name,Group,Level,Model,Pred,Prob,Correct
-sim-delayed,mal-sim,1,Dummy-Classifier,0,0.0,0
-sim-delayed,mal-sim,1,SVM,0,0.1218,0
-sim-delayed,mal-sim,1,Logistic-Regression,0,0.1436,0
